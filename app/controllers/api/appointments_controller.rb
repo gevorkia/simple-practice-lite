@@ -1,12 +1,21 @@
 class Api::AppointmentsController < ApplicationController
   def index
-    # TODO: return all values
 
     @appointments = []
+
+    past = params[:past]
 
     # using .includes to avoid n+1 queries
     appointments = Appointment.includes(:patient).includes(:doctor)
 
+    if  past == '1'
+      appointments = appointments.where("start_time < ?", Time.zone.now)
+    elsif past == '0'
+      appointments = appointments.where("start_time > ?", Time.zone.now)
+    elsif params[:length] && params[:page]
+      # TODO: pagination
+    end
+    
     appointments.each do |a| 
         @appointments.push({
           id: a.id,
@@ -20,7 +29,6 @@ class Api::AppointmentsController < ApplicationController
 
     render json: @appointments
 
-    # TODO: return filtered values
   end
 
   def create
