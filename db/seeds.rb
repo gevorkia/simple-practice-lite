@@ -45,7 +45,7 @@ doctors.each do |doctor|
             patient.appointments.create!(
                 doctor_id: doctor.id,
                 patient_id: patient.id,
-                start_time: Faker::Date.between(from: 1.year.ago, to: Date.today),
+                start_time: Faker::Date.between(from: 1.year.ago, to: Time.zone.now),
                 duration_in_minutes: 50
             )
         end
@@ -55,7 +55,7 @@ doctors.each do |doctor|
             patient.appointments.create!(
                 doctor_id: doctor.id,
                 patient_id: patient.id,
-                start_time: Faker::Date.between(from: Date.today, to: 1.year.from_now),
+                start_time: Faker::Date.between(from: Time.zone.now, to: 1.year.from_now),
                 duration_in_minutes: 50
             )
         end
