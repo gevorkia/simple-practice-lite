@@ -2,13 +2,13 @@ class Api::AppointmentsController < ApplicationController
   def index
     # TODO: return all values
 
-    appointments = []
+    @appointments = []
 
     # using .includes to avoid n+1 queries
-    @appointments = Appointment.includes(:patient).includes(:doctor)
+    appointments = Appointment.includes(:patient).includes(:doctor)
 
-    @appointments.each do |a| 
-        appointments.push({
+    appointments.each do |a| 
+        @appointments.push({
           id: a.id,
           patient: { name: a.patient.name },
           doctor: { name: a.doctor.name, id: a.doctor.id },
@@ -18,7 +18,7 @@ class Api::AppointmentsController < ApplicationController
         })
     end
 
-    render json: appointments
+    render json: @appointments
 
     # TODO: return filtered values
   end
