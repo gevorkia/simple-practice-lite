@@ -2,20 +2,28 @@ class Api::AppointmentsController < ApplicationController
   def index
 
     @appointments = []
-
-    past = params[:past]
+    @past         = params[:past]
 
     # using .includes to avoid n+1 queries
     appointments = Appointment.includes(:patient).includes(:doctor)
 
-    if  past == '1'
+    if  @past == '1'
       appointments = appointments.where("start_time < ?", Time.zone.now)
-    elsif past == '0'
+    elsif @past == '0'
       appointments = appointments.where("start_time > ?", Time.zone.now)
     elsif params[:length] && params[:page]
-      # TODO: pagination
+
+      @apts_per_page = params[:length].to_i
+      @page = params[:page].to_i
+
+      if (@apts_per_page < 1 || @page < 1 )
+        render json: {status: "error", code: 422, message: "Query parameters must be greater than 0."}
+        return
+      else
+        appointments = Appointment.offset((@page - 1) * @apts_per_page).limit(@apts_per_page)      
+      end
     end
-    
+
     appointments.each do |a| 
         @appointments.push({
           id: a.id,
