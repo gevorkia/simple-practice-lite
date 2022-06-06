@@ -40,6 +40,43 @@ class Api::AppointmentsController < ApplicationController
   end
 
   def create
-    # TODO:
+    @patient_name  = appointment_params[:patient][:name]
+    @doctor_id     = appointment_params[:doctor][:id]      
+
+    @patient  = Patient.find_by(name: @patient_name)
+
+    if !@patient
+      Patient.create!(
+        doctor_id:  @doctor_id,
+        name:       @patient_name
+      )
+
+      @patient  = Patient.find_by(name: @patient_name)
+    end
+
+    @appointment = Appointment.create!(
+      patient_id: @patient.id,
+      doctor_id:  @doctor_id,
+      start_time: appointment_params[:start_time],
+      duration_in_minutes: 50
+    )
+
+    if @appointment.save
+      render json: @appointment
+    else
+      render json: @appointment.errors.full_messages, status: 422
+    end
+  end
+
+  private
+  def appointment_params
+    params[:appointment][:patient] = params[:patient]
+    params[:appointment][:doctor] = params[:doctor]
+    params.require(:appointment).permit(
+        :start_time, 
+        :duration_in_minutes,
+        patient: [:name], 
+        doctor: [:id], 
+    )
   end
 end
